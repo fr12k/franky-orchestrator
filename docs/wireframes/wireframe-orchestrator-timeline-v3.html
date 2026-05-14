@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wireframe — Orchestrator Timeline (v3 Waterfall)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --error: #f85149;
+    --warn: #d29922;
+    --green: #3fb950;
+    --tool-bg: #1c2128;
+    --hover-bg: rgba(255,255,255,0.03);
+    --line-color: rgba(48,54,61,0.6);
+    --agent-api: #58a6ff;
+    --agent-web: #3fb950;
+    --agent-ops: #f85149;
+    --agent-docs: #d29922;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── Orchestrator chrome ─────────────────────────────────────── */
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    height: 36px;
+    background: #0a0c10;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    font-size: 12px;
+}
+.topbar a { color: var(--accent); text-decoration: none; }
+.topbar a:hover { text-decoration: underline; }
+.topbar .sep { color: var(--border); }
+.topbar .spacer { flex: 1; }
+.topbar .view-tabs { display: flex; gap: 2px; }
+.topbar .view-tab {
+    padding: 3px 12px;
+    border-radius: 4px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+}
+.topbar .view-tab.active {
+    background: rgba(88,166,255,0.1);
+    color: var(--accent);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.toolbar .spacer { flex: 1; }
+
+.agent-filter {
+    display: flex;
+    gap: 6px;
+}
+.agent-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+}
+.agent-tag.active { border-color: var(--accent); }
+.agent-tag .dot { width: 6px; height: 6px; border-radius: 50%; }
+.agent-tag .dot.api { background: var(--agent-api); }
+.agent-tag .dot.web { background: var(--agent-web); }
+.agent-tag .dot.ops { background: var(--agent-ops); }
+.agent-tag .dot.docs { background: var(--agent-docs); }
+
+.event-type-filter {
+    display: flex;
+    gap: 4px;
+    font-size: 11px;
+}
+.event-type-filter .et-btn {
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+}
+.event-type-filter .et-btn.active {
+    background: rgba(88,166,255,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── Main ────────────────────────────────────────────────────── */
+main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* ── Waterfall layout ────────────────────────────────────────── */
+.waterfall {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 32px;
+}
+
+/* ── Time tick marks ─────────────────────────────────────────── */
+.time-axis {
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 2;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: flex-end;
+    height: 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+}
+.time-axis .tick {
+    flex: 1;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    font-family: monospace;
+    font-variant-numeric: tabular-nums;
+    position: relative;
+}
+.time-axis .tick::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    height: 8px;
+    width: 1px;
+    background: var(--border);
+}
+
+/* ── Waterfall entry (a single event as a vertical column) ──── */
+.waterfall-entry {
+    position: relative;
+    display: flex;
+    gap: 14px;
+    padding: 10px 0 10px 12px;
+    /* Connect with lines to show causality */
+    border-left: 2px solid transparent;
+    transition: border-color 120ms;
+    margin-left: 8px;
+}
+.waterfall-entry:hover {
+    background: var(--hover-bg);
+    border-radius: 0 6px 6px 0;
+}
+/* Vertical connector line */
+.waterfall-entry::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--line-color);
+}
+.waterfall-entry:first-child::before { top: 50%; }
+.waterfall-entry:last-child::before { bottom: 50%; }
+
+/* ── Horizontal branch connector ─────────────────────────────── */
+.waterfall-entry.has-parent::after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    width: 8px;
+    height: 2px;
+    background: var(--line-color);
+}
+
+/* ── Time column ─────────────────────────────────────────────── */
+.wf-time {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: monospace;
+    font-variant-numeric: tabular-nums;
+    width: 60px;
+    flex-shrink: 0;
+    padding-top: 2px;
+    text-align: right;
+}
+
+/* ── Agent badge column ──────────────────────────────────────── */
+.wf-agent {
+    width: 100px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+}
+.wf-agent .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.wf-agent .dot.api { background: var(--agent-api); }
+.wf-agent .dot.web { background: var(--agent-web); }
+.wf-agent .dot.ops { background: var(--agent-ops); }
+.wf-agent .dot.docs { background: var(--agent-docs); }
+
+/* ── Event badge ─────────────────────────────────────────────── */
+.wf-badge {
+    width: 28px;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 14px;
+    padding-top: 1px;
+}
+
+/* ── Event content ───────────────────────────────────────────── */
+.wf-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wf-title {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text);
+}
+.wf-title .wf-kind {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-right: 6px;
+}
+.wf-title .wf-highlight {
+    font-family: monospace;
+    font-size: 11px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+}
+
+/* ── Row variants ────────────────────────────────────────────── */
+.wf-error .wf-title { color: var(--error); }
+.wf-tool .wf-title { color: var(--text); }
+.wf-msg .wf-title { color: var(--text); }
+.wf-retry .wf-title { color: var(--warn); }
+
+/* ── Causality arrows (visual) ──────────────────────────────── */
+.wf-causal {
+    margin-top: 6px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 10px;
+    color: var(--muted);
+}
+.wf-causal .arrow {
+    color: var(--muted);
+    font-size: 11px;
+}
+.wf-causal .cause-link {
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    cursor: pointer;
+    color: var(--accent);
+    font-family: monospace;
+    font-size: 10px;
+}
+.wf-causal .cause-link:hover { border-color: var(--accent); }
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+}
+.empty-state h2 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Orchestrator chrome -->
+<div class="topbar">
+    <a href="#">← Dashboard</a>
+    <span class="sep">/</span>
+    <span>Activity timeline</span>
+    <span class="spacer"></span>
+    <div class="view-tabs">
+        <span class="view-tab">Grid</span>
+        <span class="view-tab">Gantt</span>
+        <span class="view-tab active">Waterfall</span>
+    </div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+    <div class="agent-filter">
+        <span class="agent-tag active"><span class="dot api"></span> backend-api</span>
+        <span class="agent-tag active"><span class="dot web"></span> frontend-web</span>
+        <span class="agent-tag active"><span class="dot ops"></span> infra-deploy</span>
+        <span class="agent-tag"><span class="dot docs"></span> docs-writer</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="event-type-filter">
+        <span class="et-btn active">All</span>
+        <span class="et-btn">Turns</span>
+        <span class="et-btn">Tools</span>
+        <span class="et-btn">Errors</span>
+        <span class="et-btn">Permissions</span>
+    </div>
+</div>
+
+<main>
+    <div class="waterfall">
+
+        <!-- Time axis -->
+        <div class="time-axis">
+            <span class="tick">14:29</span>
+            <span class="tick">14:30</span>
+            <span class="tick">14:31</span>
+            <span class="tick">14:32</span>
+            <span class="tick">14:33</span>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- BRANCH 1: backend-api — "Refactor connection pool" turn    -->
+        <!-- ========================================================== -->
+
+        <!-- Turn start (root event) -->
+        <div class="waterfall-entry" style="border-left-color:var(--agent-api);">
+            <span class="wf-time">14:29:00</span>
+            <div class="wf-agent"><span class="dot api"></span> backend-api</div>
+            <span class="wf-badge">▶</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">turn</span>
+                    New turn: <span class="wf-highlight">"Refactor connection pool"</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool: read pool.ts -->
+        <div class="waterfall-entry wf-tool has-parent" style="border-left-color:var(--agent-api);">
+            <span class="wf-time">14:29:30</span>
+            <div class="wf-agent"><span class="dot api"></span> backend-api</div>
+            <span class="wf-badge">🔧</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">tool</span>
+                    <span class="wf-highlight">read</span> → src/db/pool.ts  <span style="color:var(--green);margin-left:6px;">✓ 1.2KB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool: read config.ts -->
+        <div class="waterfall-entry wf-tool" style="border-left-color:var(--agent-api);">
+            <span class="wf-time">14:30:15</span>
+            <div class="wf-agent"><span class="dot api"></span> backend-api</div>
+            <span class="wf-badge">🔧</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">tool</span>
+                    <span class="wf-highlight">read</span> → src/db/config.ts  <span style="color:var(--green);margin-left:6px;">✓ 624B</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message: thinking about approach -->
+        <div class="waterfall-entry wf-msg" style="border-left-color:var(--agent-api);">
+            <span class="wf-time">14:31:02</span>
+            <div class="wf-agent"><span class="dot api"></span> backend-api</div>
+            <span class="wf-badge">💬</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">message</span>
+                    I'll refactor the connection pool to use async initialization with a lazy singleton pattern.
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool: edit pool.ts -->
+        <div class="waterfall-entry wf-tool expanded" style="border-left-color:var(--agent-api);">
+            <span class="wf-time">14:31:48</span>
+            <div class="wf-agent"><span class="dot api"></span> backend-api</div>
+            <span class="wf-badge">🔧</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">tool</span>
+                    <span class="wf-highlight">edit</span> → src/db/pool.ts  <span style="color:var(--accent);margin-left:6px;">● running</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- BRANCH 2: frontend-web — "Refactor auth flow" turn         -->
+        <!-- ========================================================== -->
+
+        <!-- Turn start (root event) — note causal arrow from backend-api turn above -->
+        <div class="waterfall-entry" style="border-left-color:var(--agent-web);">
+            <span class="wf-time">14:30:30</span>
+            <div class="wf-agent"><span class="dot web"></span> frontend-web</div>
+            <span class="wf-badge">▶</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">turn</span>
+                    New turn: <span class="wf-highlight">"Refactor the auth flow"</span>
+                </div>
+                <div class="wf-causal">
+                    <span>triggered by backend-api's pool refactor</span>
+                    <span class="arrow">←</span>
+                    <span class="cause-link">#pool-edit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool: read middleware.ts -->
+        <div class="waterfall-entry wf-tool has-parent" style="border-left-color:var(--agent-web);">
+            <span class="wf-time">14:31:10</span>
+            <div class="wf-agent"><span class="dot web"></span> frontend-web</div>
+            <span class="wf-badge">🔧</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">tool</span>
+                    <span class="wf-highlight">read</span> → src/auth/middleware.ts  <span style="color:var(--green);margin-left:6px;">✓ 324B</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool: read session.ts -->
+        <div class="waterfall-entry wf-tool" style="border-left-color:var(--agent-web);">
+            <span class="wf-time">14:31:35</span>
+            <div class="wf-agent"><span class="dot web"></span> frontend-web</div>
+            <span class="wf-badge">🔧</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">tool</span>
+                    <span class="wf-highlight">read</span> → src/auth/session.ts  <span style="color:var(--green);margin-left:6px;">✓ 892B</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thinking message -->
+        <div class="waterfall-entry wf-msg" style="border-left-color:var(--agent-web);">
+            <span class="wf-time">14:31:40</span>
+            <div class="wf-agent"><span class="dot web"></span> frontend-web</div>
+            <span class="wf-badge">🤔</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind" style="color:var(--warn);font-style:italic;">thinking</span>
+                    The middleware currently uses JWT verification inline. I should extract that into a session-based check and fall back to JWTs for legacy routes.
+                </div>
+            </div>
+        </div>
+
+        <!-- Tool: edit session.ts (active) -->
+        <div class="waterfall-entry wf-tool expanded" style="border-left-color:var(--agent-web);">
+            <span class="wf-time">14:32:02</span>
+            <div class="wf-agent"><span class="dot web"></span> frontend-web</div>
+            <span class="wf-badge">🔧</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">tool</span>
+                    <span class="wf-highlight">edit</span> → src/auth/session.ts  <span style="color:var(--accent);margin-left:6px;">● running</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- BRANCH 3: infra-deploy — "Rollback canary" turn (error)    -->
+        <!-- ========================================================== -->
+
+        <!-- Turn start — note causal link to "Scale up" -->
+        <div class="waterfall-entry wf-error" style="border-left-color:var(--agent-ops);">
+            <span class="wf-time">14:30:45</span>
+            <div class="wf-agent"><span class="dot ops"></span> infra-deploy</div>
+            <span class="wf-badge">▶</span>
+            <div class="wf-content">
+                <div class="wf-title" style="color:var(--error);">
+                    <span class="wf-kind">turn</span>
+                    New turn: <span class="wf-highlight" style="color:var(--error);">"Rollback canary deployment"</span>
+                </div>
+                <div class="wf-causal">
+                    <span>follows from failed "Scale up worker nodes"</span>
+                    <span class="arrow">←</span>
+                    <span class="cause-link">#scale-up</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retry event -->
+        <div class="waterfall-entry wf-retry has-parent" style="border-left-color:var(--agent-ops);">
+            <span class="wf-time">14:31:00</span>
+            <div class="wf-agent"><span class="dot ops"></span> infra-deploy</div>
+            <span class="wf-badge">↻</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">retry</span>
+                    Rate limited by OpenAI API (429) — attempt 2 of 3, retrying in 1s
+                </div>
+                <div class="wf-causal">
+                    <span>caused by upstream 429 response</span>
+                    <span class="arrow">←</span>
+                    <span class="cause-link">#429-openai</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permission request -->
+        <div class="waterfall-entry" style="border-left-color:var(--agent-ops);">
+            <span class="wf-time">14:31:30</span>
+            <div class="wf-agent"><span class="dot ops"></span> infra-deploy</div>
+            <span class="wf-badge">🔒</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">permission</span>
+                    <span class="wf-highlight">bash</span>
+                    requesting: <span style="font-family:monospace;font-size:11px;color:var(--warn);">kubectl delete pod web-7c4f9...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error event (fatal) -->
+        <div class="waterfall-entry wf-error expanded" style="border-left-color:var(--agent-error);">
+            <span class="wf-time">14:31:58</span>
+            <div class="wf-agent"><span class="dot ops"></span> infra-deploy</div>
+            <span class="wf-badge">⚠</span>
+            <div class="wf-content">
+                <div class="wf-title">
+                    <span class="wf-kind">error</span>
+                    Connection timeout to AWS ECS API after 30s
+                </div>
+                <div class="wf-causal">
+                    <span>caused ECS connection pool exhaustion on all agents</span>
+                    <span class="arrow">→</span>
+                    <span class="cause-link">#ecs-down</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- Summary / end of window                                     -->
+        <!-- ========================================================== -->
+        <div style="margin-top:20px;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:8px;display:flex;gap:24px;font-size:11px;color:var(--muted);">
+            <span><span style="color:var(--text);font-weight:600;">3</span> turns</span>
+            <span><span style="color:var(--text);font-weight:600;">8</span> tool calls</span>
+            <span><span style="color:var(--error);font-weight:600;">1</span> error</span>
+            <span><span style="color:var(--warn);font-weight:600;">2</span> retries</span>
+            <span><span style="color:var(--text);font-weight:600;">2</span> permissions</span>
+            <span style="margin-left:auto;"><span style="color:var(--accent);">2 causal chains</span> detected</span>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

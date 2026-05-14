@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>franky orchestrator</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <h1>franky<span> orchestrator</span></h1>
+  <div class="spacer"></div>
+  <span id="orch-pill" class="orch-pill">connecting…</span>
+</header>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <input type="text" id="search-input" placeholder="Search agents…" autocomplete="off">
+  <div id="filter-group" class="filter-group">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="idle">Idle</button>
+    <button class="filter-btn" data-filter="streaming">Streaming</button>
+    <button class="filter-btn" data-filter="error">Error</button>
+    <button class="filter-btn" data-filter="offline">Offline</button>
+  </div>
+  <div class="spacer"></div>
+  <div id="view-tabs" class="view-tabs">
+    <button class="view-tab active" data-view="dashboard">Dashboard</button>
+    <button class="view-tab" data-view="timeline">Timeline</button>
+  </div>
+</div>
+
+<!-- Main content -->
+<main>
+  <div id="agent-grid" class="agent-grid"></div>
+  <div id="timeline-container" class="hidden">
+    <div id="waterfall"></div>
+  </div>
+  <div id="empty-state" class="empty-state hidden">
+    <div class="empty-icon">◎</div>
+    <p>No agents connected</p>
+    <p class="empty-hint">Start a franky agent with <code>--register http://localhost:9000</code></p>
+  </div>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
