@@ -5,8 +5,15 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write # for checkout
+  pull-requests: write # for updating pr
+
 jobs:
   build:
     name: Build
+    permissions:
+      contents: write
+      pull-requests: write
     uses: containifyci/.github/.github/workflows/pull-request.yml@v1
     secrets: inherit

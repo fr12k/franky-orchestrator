@@ -11,8 +11,13 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write # for checkout
+
 jobs:
   publish:
+    permissions:
+      contents: write
     uses: containifyci/.github/.github/workflows/artifacts.yml@v1
     secrets: inherit
     with:
