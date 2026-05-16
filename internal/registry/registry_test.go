@@ -48,23 +48,9 @@ func TestRegister(t *testing.T) {
 		}
 	})
 
-	t.Run("duplicate apiUrl non-offline returns error", func(t *testing.T) {
+	t.Run("duplicate apiUrl replaces existing agent", func(t *testing.T) {
 		reg := newTestRegistry(t)
 		a1 := testAgent("agent-1", "Agent 1", "http://example.com:8080")
-		if _, err := reg.Register(a1); err != nil {
-			t.Fatalf("first registration failed: %v", err)
-		}
-		a2 := testAgent("agent-2", "Agent 2", "http://example.com:8080")
-		_, err := reg.Register(a2)
-		if err != ErrDuplicateAPIURL {
-			t.Fatalf("expected ErrDuplicateAPIURL, got %v", err)
-		}
-	})
-
-	t.Run("duplicate apiUrl offline replaces", func(t *testing.T) {
-		reg := newTestRegistry(t)
-		a1 := testAgent("agent-1", "Agent 1", "http://example.com:8080")
-		a1.Status = StatusOffline
 		if _, err := reg.Register(a1); err != nil {
 			t.Fatalf("first registration failed: %v", err)
 		}
@@ -75,11 +61,29 @@ func TestRegister(t *testing.T) {
 		}
 		// Old agent should be removed
 		if _, ok := reg.Get("agent-1"); ok {
-			t.Error("expected old offline agent to be removed")
+			t.Error("expected old agent to be removed")
 		}
 		// New agent should be present
 		if _, ok := reg.Get("agent-2"); !ok {
 			t.Error("expected new agent to be present")
+		}
+	})
+
+	t.Run("duplicate apiUrl same agent re-registers (no-op replace)", func(t *testing.T) {
+		reg := newTestRegistry(t)
+		a1 := testAgent("agent-1", "Agent 1", "http://example.com:8080")
+		a1.Status = StatusOffline
+		if _, err := reg.Register(a1); err != nil {
+			t.Fatalf("first registration failed: %v", err)
+		}
+		a2 := testAgent("agent-1", "Agent 1 revisited", "http://example.com:8080")
+		_, err := reg.Register(a2)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		// Same ID should still be present
+		if _, ok := reg.Get("agent-1"); !ok {
+			t.Error("expected same agent to still be present")
 		}
 	})
 

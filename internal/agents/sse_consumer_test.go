@@ -21,7 +21,7 @@ func TestNewSSEConsumer(t *testing.T) {
 	touchFn := func(id string) { touched = id }
 	checkFn := func(id string) bool { return true }
 
-	c := NewSSEConsumer("agent-1", "http://localhost:9999", broker, touchFn, checkFn)
+	c := NewSSEConsumer(context.Background(), "agent-1", "http://localhost:9999", broker, touchFn, checkFn)
 	if c.AgentID != "agent-1" {
 		t.Errorf("expected AgentID 'agent-1', got '%s'", c.AgentID)
 	}
@@ -152,7 +152,7 @@ func TestConnectAndReadPing(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 
-	c := NewSSEConsumer("agent-ping", srv.URL, broker, touchFn, checkFn)
+	c := NewSSEConsumer(context.Background(), "agent-ping", srv.URL, broker, touchFn, checkFn)
 
 	done := make(chan struct{})
 	go func() {
@@ -211,7 +211,7 @@ func TestConnectAndReadEvent(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 
-	c := NewSSEConsumer("agent-evt", srv.URL, broker, touchFn, checkFn)
+	c := NewSSEConsumer(context.Background(), "agent-evt", srv.URL, broker, touchFn, checkFn)
 
 	go func() { _ = c.connectAndRead() }()
 
@@ -259,7 +259,7 @@ func TestConnectAndReadHTTPError(t *testing.T) {
 	}))
 	t.Cleanup(srv.Close)
 
-	c := NewSSEConsumer("agent-err", srv.URL, broker, touchFn, checkFn)
+	c := NewSSEConsumer(context.Background(), "agent-err", srv.URL, broker, touchFn, checkFn)
 
 	err := c.connectAndRead()
 	if err == nil {
@@ -278,7 +278,7 @@ func TestRunAgentRemoved(t *testing.T) {
 	touchFn := func(id string) {}
 	checkFn := func(id string) bool { return false } // agent does not exist
 
-	c := NewSSEConsumer("gone", "http://localhost:1", broker, touchFn, checkFn)
+	c := NewSSEConsumer(context.Background(), "gone", "http://localhost:1", broker, touchFn, checkFn)
 
 	done := make(chan struct{})
 	go func() {
@@ -318,7 +318,7 @@ func TestConnectAndReadWithTouchFnNil(t *testing.T) {
 	t.Cleanup(srv.Close)
 
 	// nil TouchFn should not panic
-	c := NewSSEConsumer("agent-nil", srv.URL, broker, nil, checkFn)
+	c := NewSSEConsumer(context.Background(), "agent-nil", srv.URL, broker, nil, checkFn)
 
 	done := make(chan struct{})
 	go func() {
@@ -365,7 +365,7 @@ func TestRunReconnectLoop(t *testing.T) {
 	checkFn := func(id string) bool { return agentExists }
 	touchFn := func(id string) {}
 
-	c := NewSSEConsumer("agent-loop", srv.URL, broker, touchFn, checkFn)
+	c := NewSSEConsumer(context.Background(), "agent-loop", srv.URL, broker, touchFn, checkFn)
 
 	done := make(chan struct{})
 	go func() {
@@ -411,7 +411,7 @@ func TestConnectAndReadScannerError(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c := NewSSEConsumer("agent-scan", srv.URL, broker, nil, func(id string) bool { return false })
+	c := NewSSEConsumer(context.Background(), "agent-scan", srv.URL, broker, nil, func(id string) bool { return false })
 
 	err := c.connectAndRead()
 	if err == nil {

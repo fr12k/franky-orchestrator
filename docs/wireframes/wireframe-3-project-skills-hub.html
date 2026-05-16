@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wireframe 3 — Franky Project Activity & Skills Hub</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --panel-raised: #1c2128;
+  --border: #30363d;
+  --border-strong: #444c56;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --text-dim: #6e7681;
+  --text-faint: #484f58;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88,166,255,0.15);
+  --success: #3fb950;
+  --warn: #d29922;
+  --error: #f85149;
+
+  --profile-deepseek: #8b5cf6;
+  --profile-gemini: #06b6d4;
+  --profile-gemma4: #10b981;
+  --profile-cerebras: #f97316;
+  --profile-openrouter: #ec4899;
+
+  --heat-empty: #161b22;
+  --heat-l1: rgba(88,166,255,0.15);
+  --heat-l2: rgba(88,166,255,0.30);
+  --heat-l3: rgba(88,166,255,0.50);
+  --heat-l4: rgba(88,166,255,0.75);
+
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 20px; height: 52px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-brand-logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), #1f6feb);
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.header-brand-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+.header-brand-name span { font-weight: 400; color: var(--text-muted); }
+.header-nav { display: flex; gap: 2px; margin-left: 28px; }
+.header-nav a {
+  padding: 6px 14px; border-radius: var(--radius);
+  font-size: 12px; font-weight: 500;
+  color: var(--text-muted); text-decoration: none;
+  transition: background 120ms, color 120ms;
+}
+.header-nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.header-nav a.active { color: var(--accent); background: var(--accent-glow); }
+.spacer { flex: 1; }
+
+/* ── Breadcrumb ──────────────────────────────────────────────── */
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 24px 0;
+  font-size: 12px; color: var(--text-dim);
+}
+.breadcrumb a { color: var(--accent); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb .sep { color: var(--border); font-size: 10px; }
+
+/* ── Project Header ──────────────────────────────────────────── */
+.project-header {
+  padding: 16px 24px 0;
+  display: flex; align-items: flex-start; gap: 16px;
+}
+.project-icon {
+  width: 48px; height: 48px; border-radius: var(--radius-lg);
+  background: var(--accent-glow);
+  border: 1px solid rgba(88,166,255,0.2);
+  display: grid; place-items: center;
+  font-size: 22px; color: var(--accent);
+  flex-shrink: 0;
+}
+.project-info { flex: 1; min-width: 0; }
+.project-name {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.project-path {
+  font-family: monospace; font-size: 11px;
+  color: var(--text-dim); margin-top: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.project-agents {
+  display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;
+}
+.project-agents .agent-chip {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; padding: 2px 10px;
+  border-radius: 10px; border: 1px solid;
+  font-weight: 500;
+}
+.project-agents .agent-chip .dot { width: 5px; height: 5px; border-radius: 50%; }
+
+/* Project stats row */
+.project-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-top: 16px;
+  background: var(--border);
+}
+.project-stat {
+  background: var(--panel);
+  padding: 12px 16px;
+  text-align: center;
+}
+.project-stat-value {
+  font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.project-stat-label {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--text-dim); margin-top: 2px;
+}
+
+/* ── Tab strip ───────────────────────────────────────────────── */
+.tab-strip {
+  display: flex; gap: 2px;
+  padding: 0 24px;
+  margin-top: 18px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+}
+.tab-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 16px;
+  font-size: 12px; font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all 120ms;
+  text-decoration: none;
+}
+.tab-item:hover { color: var(--text); }
+.tab-item.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(88,166,255,0.04);
+}
+.tab-item .count {
+  font-size: 10px; font-variant-numeric: tabular-nums;
+  padding: 0 6px; border-radius: 8px;
+  background: var(--panel-raised);
+  color: var(--text-faint);
+}
+.tab-item.active .count {
+  background: var(--accent-glow); color: var(--accent);
+}
+
+/* ── Main ────────────────────────────────────────────────────── */
+main { flex: 1; overflow-y: auto; padding: 20px 24px 40px; }
+
+/* ── Section ─────────────────────────────────────────────────── */
+.section { margin-bottom: 24px; }
+.section-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.2em; color: var(--text-dim);
+}
+.section-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── KPI row ─────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.kpi-tile {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 14px 16px;
+  position: relative; overflow: hidden;
+}
+.kpi-tile-accent {
+  position: absolute; left: 0; top: 12px; bottom: 12px;
+  width: 3px; border-radius: 0 3px 3px 0;
+}
+.kpi-tile-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.16em; color: var(--text-dim);
+}
+.kpi-tile-value {
+  margin-top: 6px;
+  font-size: 22px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-tile-sub {
+  font-size: 10px; color: var(--text-muted); margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Activity Heatmap ────────────────────────────────────────── */
+.heatmap-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  overflow: hidden;
+}
+.heatmap-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.heatmap-title {
+  font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.heatmap-toggle {
+  display: flex; border-radius: 4px;
+  border: 1px solid var(--border); overflow: hidden;
+}
+.heatmap-toggle button {
+  padding: 4px 12px; font-size: 10px; font-family: inherit;
+  font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em;
+  background: transparent; border: none;
+  color: var(--text-muted); cursor: pointer;
+  transition: all 100ms;
+}
+.heatmap-toggle button:hover { color: var(--text); }
+.heatmap-toggle button.active {
+  background: var(--accent-glow); color: var(--accent);
+}
+
+.heatmap-body { padding: 16px 18px; }
+
+/* GitHub-style heatmap grid */
+.heatmap-grid {
+  display: flex; gap: 3px;
+}
+.heatmap-week { display: flex; flex-direction: column; gap: 3px; }
+.heatmap-cell {
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  background: var(--heat-empty);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+.heatmap-cell.l1 { background: var(--heat-l1); }
+.heatmap-cell.l2 { background: var(--heat-l2); }
+.heatmap-cell.l3 { background: var(--heat-l3); }
+.heatmap-cell.l4 { background: var(--heat-l4); }
+
+/* Day-of-week heatmap */
+.dow-row {
+  display: flex; align-items: center; gap: 4px;
+  margin-bottom: 3px;
+}
+.dow-label {
+  width: 20px; font-size: 8px; color: var(--text-faint);
+  text-align: right; flex-shrink: 0;
+}
+.dow-cells { display: flex; gap: 3px; }
+.dow-cell {
+  width: 14px; height: 14px; border-radius: 2px;
+  cursor: pointer; position: relative;
+  transition: transform 100ms;
+}
+.dow-cell:hover { transform: scale(1.3); z-index: 2; }
+.dow-cell.empty { background: var(--heat-empty); border: 1px solid rgba(255,255,255,0.03); }
+.dow-cell.l1 { background: var(--heat-l1); }
+.dow-cell.l2 { background: var(--heat-l2); }
+.dow-cell.l3 { background: var(--heat-l3); }
+.dow-cell.l4 { background: var(--heat-l4); }
+.dow-cell.deepseek { background: var(--profile-deepseek); opacity: 0.35; }
+.dow-cell.deepseek.l2 { opacity: 0.55; }
+.dow-cell.deepseek.l3 { opacity: 0.75; }
+
+/* ── Per-agent sparkline strip ───────────────────────────────── */
+.sparkline-strip {
+  display: flex; gap: 16px;
+  margin-top: 14px; flex-wrap: wrap;
+}
+.sparkline-row {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 200px;
+}
+.sparkline-row .label {
+  font-size: 10px; font-weight: 500; width: 60px; flex-shrink: 0;
+}
+.sparkline-row .label .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-right: 4px; }
+.sparkline-row .track {
+  flex: 1; height: 20px;
+  display: flex; align-items: flex-end; gap: 1px;
+}
+.sparkline-row .track .bar {
+  flex: 1; border-radius: 1px 1px 0 0;
+  min-height: 1px;
+  transition: background 200ms;
+}
+
+/* ── Sessions table ──────────────────────────────────────────── */
+.sessions-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  overflow: hidden;
+}
+.sessions-table { width: 100%; border-collapse: collapse; }
+.sessions-table th {
+  padding: 10px 16px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.16em; color: var(--text-dim);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg); position: sticky; top: 0; z-index: 1;
+}
+.sessions-table td {
+  padding: 10px 16px;
+  font-size: 12px; border-bottom: 1px solid rgba(48,54,61,0.4);
+}
+.sessions-table tr { cursor: pointer; transition: background 80ms; }
+.sessions-table tr:hover { background: rgba(255,255,255,0.02); }
+.sessions-table tr:last-child td { border-bottom: none; }
+
+.agent-cell {
+  display: flex; align-items: center; gap: 6px;
+}
+.agent-cell .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.intent-cell {
+  color: var(--text); max-width: 400px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.time-cell {
+  font-size: 10px; color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.insight-cell {
+  display: flex; gap: 6px;
+}
+.insight-chip {
+  font-size: 9px; padding: 1px 6px; border-radius: 3px;
+  border: 1px solid var(--border); color: var(--text-faint);
+  display: flex; align-items: center; gap: 3px;
+}
+.insight-chip.plan { color: var(--success); border-color: rgba(63,185,80,0.3); }
+.insight-chip.tools { color: var(--accent); border-color: rgba(88,166,255,0.3); }
+.insight-chip.error { color: var(--error); border-color: rgba(248,81,73,0.3); }
+
+/* ── Skill cards (Open Design inspired) ──────────────────────── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.skill-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms;
+}
+.skill-card:hover {
+  border-color: rgba(88,166,255,0.35);
+  background: var(--panel-raised);
+}
+.skill-card-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.skill-icon {
+  width: 28px; height: 28px; border-radius: var(--radius);
+  background: var(--accent-glow);
+  display: grid; place-items: center;
+  font-size: 13px; color: var(--accent);
+  flex-shrink: 0;
+}
+.skill-name {
+  font-size: 12px; font-weight: 600;
+}
+.skill-badge {
+  font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 1px 6px; border-radius: 6px;
+  border: 1px solid; margin-left: auto;
+}
+.skill-badge.prototype { border-color: rgba(88,166,255,0.3); color: var(--accent); }
+.skill-badge.deck { border-color: rgba(63,185,80,0.3); color: var(--success); }
+.skill-badge.template { border-color: rgba(210,153,34,0.3); color: var(--warn); }
+.skill-desc {
+  font-size: 10px; color: var(--text-muted); line-height: 1.45;
+}
+.skill-triggers {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px;
+}
+.skill-trigger {
+  font-size: 8px; padding: 1px 6px; border-radius: 3px;
+  background: var(--panel-raised);
+  border: 1px solid var(--border);
+  color: var(--text-faint);
+  font-family: monospace;
+}
+.skill-params {
+  display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+}
+.skill-param {
+  flex: 1; min-width: 60px;
+}
+.skill-param-label {
+  font-size: 8px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-faint); margin-bottom: 2px;
+}
+.skill-param-slider {
+  width: 100%; height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px; position: relative;
+}
+.skill-param-slider .fill {
+  height: 100%; border-radius: 2px;
+  background: var(--accent);
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; gap: 12px; padding: 48px 20px;
+}
+.empty-icon {
+  width: 48px; height: 48px; border-radius: var(--radius-lg);
+  border: 1px solid var(--border); background: var(--panel);
+  display: grid; place-items: center;
+  font-size: 22px; color: var(--text-faint);
+}
+.empty-title { font-size: 15px; font-weight: 600; }
+.empty-desc { font-size: 13px; color: var(--text-muted); max-width: 400px; line-height: 1.5; }
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ HEADER ═══════════════════ -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-brand-logo">F</div>
+    <div class="header-brand-name">franky<span> orchestrator</span></div>
+  </div>
+  <nav class="header-nav">
+    <a href="#">Dashboard</a>
+    <a href="#">Timeline</a>
+    <a href="#" class="active">Projects</a>
+    <a href="#">Agents</a>
+  </nav>
+  <div class="spacer"></div>
+  <div style="font-size:10px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);color:var(--text-muted);">
+    ⚡ 4 agents live
+  </div>
+</header>
+
+<!-- ═══════════════════ BREADCRUMB ═══════════════════ -->
+<div class="breadcrumb">
+  <a href="#">Projects</a>
+  <span class="sep">/</span>
+  <span style="color:var(--text);">payment-service</span>
+</div>
+
+<!-- ═══════════════════ PROJECT HEADER ═══════════════════ -->
+<div class="project-header">
+  <div class="project-icon">📁</div>
+  <div class="project-info">
+    <div class="project-name">payment-service</div>
+    <div class="project-path">/Users/frank/Developer/payment-service</div>
+    <div class="project-agents">
+      <span class="agent-chip" style="border-color:rgba(139,92,246,0.3);color:var(--profile-deepseek);background:rgba(139,92,246,0.06);">
+        <span class="dot" style="background:var(--profile-deepseek);"></span> DeepSeek Flash
+      </span>
+      <span class="agent-chip" style="border-color:rgba(6,182,212,0.3);color:var(--profile-gemini);background:rgba(6,182,212,0.06);">
+        <span class="dot" style="background:var(--profile-gemini);"></span> Gemini 3.1 Flash
+      </span>
+      <span class="agent-chip" style="border-color:rgba(16,185,129,0.3);color:var(--profile-gemma4);background:rgba(16,185,129,0.06);">
+        <span class="dot" style="background:var(--profile-gemma4);"></span> Gemma 4 Cloud
+      </span>
+    </div>
+    <div class="project-stats">
+      <div class="project-stat">
+        <div class="project-stat-value" style="color:var(--accent);">47</div>
+        <div class="project-stat-label">Sessions</div>
+      </div>
+      <div class="project-stat">
+        <div class="project-stat-value" style="color:var(--success);">892K</div>
+        <div class="project-stat-label">Tokens</div>
+      </div>
+      <div class="project-stat">
+        <div class="project-stat-value" style="color:var(--warn);">12</div>
+        <div class="project-stat-label">Sub-agents</div>
+      </div>
+      <div class="project-stat">
+        <div class="project-stat-value" style="color:var(--text);">3</div>
+        <div class="project-stat-label">Plans</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ STICKY TABS (Open Design inspired) ═══════════════════ -->
+<div class="tab-strip">
+  <a class="tab-item active">
+    <span>📈 Activity</span>
+    <span class="count">47</span>
+  </a>
+  <a class="tab-item">
+    <span>✨ Insights</span>
+  </a>
+  <a class="tab-item">
+    <span>📋 Plans</span>
+    <span class="count">3</span>
+  </a>
+  <a class="tab-item">
+    <span>⚙️ Skills</span>
+    <span class="count">6</span>
+  </a>
+  <a class="tab-item">
+    <span>🔧 Config</span>
+  </a>
+</div>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main>
+
+  <!-- ─── KPI Strip ─── -->
+  <section class="section">
+    <div class="kpi-grid">
+      <div class="kpi-tile">
+        <div class="kpi-tile-accent" style="background:var(--success);box-shadow:0 0 12px rgba(63,185,80,0.15);"></div>
+        <div class="kpi-tile-label">Current streak</div>
+        <div class="kpi-tile-value" style="color:var(--success);">12<span style="font-size:12px;font-weight:400;color:var(--text-muted);">d</span></div>
+        <div class="kpi-tile-sub">Active for 12 consecutive days</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-accent" style="background:var(--warn);box-shadow:0 0 12px rgba(210,153,34,0.15);"></div>
+        <div class="kpi-tile-label">Longest streak</div>
+        <div class="kpi-tile-value" style="color:var(--warn);">24<span style="font-size:12px;font-weight:400;color:var(--text-muted);">d</span></div>
+        <div class="kpi-tile-sub">Mar 12 → Apr 4</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-accent" style="background:var(--accent);box-shadow:0 0 12px var(--accent-glow);"></div>
+        <div class="kpi-tile-label">Total sessions</div>
+        <div class="kpi-tile-value" style="color:var(--accent);">47</div>
+        <div class="kpi-tile-sub">Across 3 agents</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-tile-accent" style="background:var(--profile-deepseek);box-shadow:0 0 12px rgba(139,92,246,0.15);"></div>
+        <div class="kpi-tile-label">Total tokens</div>
+        <div class="kpi-tile-value" style="color:var(--profile-deepseek);">892K</div>
+        <div class="kpi-tile-sub">$0.12 est. cost</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Activity Heatmap (GitHub-style) ─── -->
+  <section class="section">
+    <div class="heatmap-card">
+      <div class="heatmap-header">
+        <div class="heatmap-title">
+          <span style="color:var(--accent);">🔥</span> Activity heatmap
+        </div>
+        <div class="heatmap-toggle">
+          <button class="active">Sessions</button>
+          <button>Tokens</button>
+        </div>
+      </div>
+      <div class="heatmap-body">
+        <!-- GitHub-style 52-week × 7-day grid -->
+        <div class="heatmap-grid">
+          <!-- Week 1 -->
+          <div class="heatmap-week">
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l2"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l3"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l2"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l4"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l4"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l1"></div>
+          </div>
+          <div class="heatmap-week">
+            <div class="heatmap-cell"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell l2"></div>
+            <div class="heatmap-cell l3"></div>
+            <div class="heatmap-cell l4"></div>
+            <div class="heatmap-cell l1"></div>
+            <div class="heatmap-cell"></div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;justify-content:flex-end;">
+          <span style="font-size:9px;color:var(--text-faint);">Less</span>
+          <div class="heatmap-cell" style="display:inline-block;"></div>
+          <div class="heatmap-cell l1" style="display:inline-block;"></div>
+          <div class="heatmap-cell l2" style="display:inline-block;"></div>
+          <div class="heatmap-cell l3" style="display:inline-block;"></div>
+          <div class="heatmap-cell l4" style="display:inline-block;"></div>
+          <span style="font-size:9px;color:var(--text-faint);">More</span>
+        </div>
+
+        <!-- Per-agent sparkline strip -->
+        <div class="sparkline-strip">
+          <div class="sparkline-row">
+            <span class="label"><span class="dot" style="background:var(--profile-deepseek);"></span>DeepSeek</span>
+            <div class="track">
+              <div class="bar" style="height:4px;background:var(--profile-deepseek);opacity:0.3;"></div>
+              <div class="bar" style="height:8px;background:var(--profile-deepseek);opacity:0.5;"></div>
+              <div class="bar" style="height:6px;background:var(--profile-deepseek);opacity:0.4;"></div>
+              <div class="bar" style="height:14px;background:var(--profile-deepseek);opacity:0.7;"></div>
+              <div class="bar" style="height:18px;background:var(--profile-deepseek);opacity:0.9;"></div>
+              <div class="bar" style="height:12px;background:var(--profile-deepseek);opacity:0.6;"></div>
+              <div class="bar" style="height:10px;background:var(--profile-deepseek);opacity:0.5;"></div>
+              <div class="bar" style="height:16px;background:var(--profile-deepseek);opacity:0.8;"></div>
+              <div class="bar" style="height:8px;background:var(--profile-deepseek);opacity:0.4;"></div>
+              <div class="bar" style="height:20px;background:var(--profile-deepseek);opacity:1;"></div>
+              <div class="bar" style="height:6px;background:var(--profile-deepseek);opacity:0.3;"></div>
+              <div class="bar" style="height:14px;background:var(--profile-deepseek);opacity:0.7;"></div>
+              <div class="bar" style="height:10px;background:var(--profile-deepseek);opacity:0.5;"></div>
+            </div>
+          </div>
+          <div class="sparkline-row">
+            <span class="label"><span class="dot" style="background:var(--profile-gemini);"></span>Gemini</span>
+            <div class="track">
+              <div class="bar" style="height:12px;background:var(--profile-gemini);opacity:0.6;"></div>
+              <div class="bar" style="height:6px;background:var(--profile-gemini);opacity:0.4;"></div>
+              <div class="bar" style="height:14px;background:var(--profile-gemini);opacity:0.7;"></div>
+              <div class="bar" style="height:8px;background:var(--profile-gemini);opacity:0.5;"></div>
+              <div class="bar" style="height:4px;background:var(--profile-gemini);opacity:0.3;"></div>
+              <div class="bar" style="height:10px;background:var(--profile-gemini);opacity:0.5;"></div>
+              <div class="bar" style="height:16px;background:var(--profile-gemini);opacity:0.8;"></div>
+              <div class="bar" style="height:12px;background:var(--profile-gemini);opacity:0.6;"></div>
+              <div class="bar" style="height:8px;background:var(--profile-gemini);opacity:0.4;"></div>
+              <div class="bar" style="height:6px;background:var(--profile-gemini);opacity:0.3;"></div>
+            </div>
+          </div>
+          <div class="sparkline-row">
+            <span class="label"><span class="dot" style="background:var(--profile-gemma4);"></span>Gemma4</span>
+            <div class="track">
+              <div class="bar" style="height:6px;background:var(--profile-gemma4);opacity:0.4;"></div>
+              <div class="bar" style="height:10px;background:var(--profile-gemma4);opacity:0.6;"></div>
+              <div class="bar" style="height:4px;background:var(--profile-gemma4);opacity:0.3;"></div>
+              <div class="bar" style="height:12px;background:var(--profile-gemma4);opacity:0.7;"></div>
+              <div class="bar" style="height:8px;background:var(--profile-gemma4);opacity:0.5;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Hour-of-day heatmap ─── -->
+  <section class="section">
+    <div class="heatmap-card" style="padding:16px 18px;">
+      <div class="section-header" style="margin-bottom:12px;">
+        <div>
+          <div class="section-title">Hourly activity pattern</div>
+          <div class="section-desc">Day-of-week × hour-of-day session distribution.</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <!-- Day rows -->
+        <div class="dow-row">
+          <span class="dow-label">Mon</span>
+          <div class="dow-cells">
+            <div class="dow-cell deepseek l3" title="2 sessions"></div>
+            <div class="dow-cell deepseek l2" title="1 session"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell deepseek l1" title="1 session"></div>
+            <div class="dow-cell deepseek l4" title="3 sessions"></div>
+            <div class="dow-cell deepseek l3" title="2 sessions"></div>
+            <div class="dow-cell deepseek l2" title="1 session"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell gemini l2" title="1 session"></div>
+            <div class="dow-cell gemini l3" title="2 sessions"></div>
+            <div class="dow-cell gemini l2" title="1 session"></div>
+            <div class="dow-cell gemini l1" title="1 session"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell deepseek l1" title="1 session"></div>
+            <div class="dow-cell deepseek l3" title="2 sessions"></div>
+            <div class="dow-cell deepseek l4" title="3 sessions"></div>
+            <div class="dow-cell deepseek l2" title="1 session"></div>
+            <div class="dow-cell empty" title="0"></div>
+            <div class="dow-cell empty" title="0"></div>
+          </div>
+        </div>
+        <div class="dow-row">
+          <span class="dow-label">Tue</span>
+          <div class="dow-cells">
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l4"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemini l1"></div>
+            <div class="dow-cell gemini l3"></div>
+            <div class="dow-cell gemini l4"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell gemini l1"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l4"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+          </div>
+        </div>
+        <div class="dow-row">
+          <span class="dow-label">Wed</span>
+          <div class="dow-cells">
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l4"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell gemini l3"></div>
+            <div class="dow-cell gemini l4"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemma4 l1"></div>
+            <div class="dow-cell gemma4 l3"></div>
+            <div class="dow-cell gemma4 l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+          </div>
+        </div>
+        <div class="dow-row">
+          <span class="dow-label">Thu</span>
+          <div class="dow-cells">
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemini l1"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell gemini l4"></div>
+            <div class="dow-cell gemini l3"></div>
+            <div class="dow-cell gemini l1"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemma4 l1"></div>
+            <div class="dow-cell gemma4 l2"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l4"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+          </div>
+        </div>
+        <div class="dow-row">
+          <span class="dow-label">Fri</span>
+          <div class="dow-cells">
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l4"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell gemini l3"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l4"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+          </div>
+        </div>
+        <div class="dow-row">
+          <span class="dow-label">Sat</span>
+          <div class="dow-cells">
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell gemini l1"></div>
+            <div class="dow-cell gemini l2"></div>
+            <div class="dow-cell gemini l1"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+          </div>
+        </div>
+        <div class="dow-row">
+          <span class="dow-label">Sun</span>
+          <div class="dow-cells">
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell deepseek l2"></div>
+            <div class="dow-cell deepseek l3"></div>
+            <div class="dow-cell deepseek l1"></div>
+            <div class="dow-cell empty"></div>
+            <div class="dow-cell empty"></div>
+          </div>
+        </div>
+        <!-- Hour labels -->
+        <div class="dow-row" style="margin-top:4px;">
+          <span class="dow-label"></span>
+          <div class="dow-cells" style="gap:3px;">
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">0</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">1</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">2</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">3</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">6</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">8</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">9</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">10</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">11</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">12</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">13</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">14</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">15</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">16</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">17</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">18</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">19</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">20</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">21</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">22</span>
+            <span style="width:14px;font-size:7px;color:var(--text-faint);text-align:center;">23</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Session History Table ─── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Session history</div>
+        <div class="section-desc">All sessions for this project, sorted by recency.</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" placeholder="Search sessions…" style="background:var(--panel);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:5px 10px;font-size:12px;font-family:inherit;width:200px;outline:none;">
+      </div>
+    </div>
+
+    <div class="sessions-card" style="max-height:500px;overflow-y:auto;">
+      <table class="sessions-table">
+        <thead>
+          <tr>
+            <th style="width:100px;">Agent</th>
+            <th>Session intent</th>
+            <th style="width:80px;text-align:center;">Insights</th>
+            <th style="width:70px;text-align:right;">Tokens</th>
+            <th style="width:60px;text-align:right;">Cost</th>
+            <th style="width:110px;text-align:right;">Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <span class="dot" style="background:var(--profile-deepseek);"></span>
+                DeepSeek
+              </div>
+            </td>
+            <td class="intent-cell">Refactor payment service to use the new idempotency key pattern</td>
+            <td class="insight-cell">
+              <span class="insight-chip plan">📋 Plan</span>
+              <span class="insight-chip tools">🔧 4 tools</span>
+            </td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--text-muted);">24.3K</td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--success);">$0.00</td>
+            <td class="time-cell" style="text-align:right;">14:23:12 · May 14</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <span class="dot" style="background:var(--profile-gemini);"></span>
+                Gemini
+              </div>
+            </td>
+            <td class="intent-cell">Add user authentication middleware to the API gateway</td>
+            <td class="insight-cell">
+              <span class="insight-chip tools">🔧 6 tools</span>
+            </td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--text-muted);">18.7K</td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--warn);">$0.04</td>
+            <td class="time-cell" style="text-align:right;">14:18:45 · May 14</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <span class="dot" style="background:var(--profile-gemma4);"></span>
+                Gemma4
+              </div>
+            </td>
+            <td class="intent-cell">Fix database migration script for the new schema</td>
+            <td class="insight-cell">
+              <span class="insight-chip tools">🔧 3 tools</span>
+            </td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--text-muted);">12.1K</td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--success);">$0.00</td>
+            <td class="time-cell" style="text-align:right;">14:12:08 · May 14</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <span class="dot" style="background:var(--profile-deepseek);"></span>
+                DeepSeek
+              </div>
+            </td>
+            <td class="intent-cell">Review code coverage report and add missing tests</td>
+            <td class="insight-cell">
+              <span class="insight-chip plan">📋 Plan</span>
+              <span class="insight-chip tools">🔧 5 tools</span>
+              <span class="insight-chip error">⚠ 1 retry</span>
+            </td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--text-muted);">31.5K</td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--success);">$0.00</td>
+            <td class="time-cell" style="text-align:right;">14:05:33 · May 14</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <span class="dot" style="background:var(--profile-deepseek);"></span>
+                DeepSeek
+              </div>
+            </td>
+            <td class="intent-cell">Optimize the query planner for large dataset joins</td>
+            <td class="insight-cell">
+              <span class="insight-chip tools">🔧 8 tools</span>
+            </td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--text-muted);">42.8K</td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--success);">$0.00</td>
+            <td class="time-cell" style="text-align:right;">13:52:17 · May 14</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="agent-cell">
+                <span class="dot" style="background:var(--profile-gemini);"></span>
+                Gemini
+              </div>
+            </td>
+            <td class="intent-cell">Design the new rate limiting strategy for the public API</td>
+            <td class="insight-cell">
+              <span class="insight-chip plan">📋 Plan</span>
+              <span class="insight-chip tools">🔧 4 tools</span>
+            </td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--text-muted);">15.2K</td>
+            <td style="font-variant-numeric:tabular-nums;text-align:right;font-size:11px;color:var(--warn);">$0.02</td>
+            <td class="time-cell" style="text-align:right;">13:44:00 · May 14</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── Open Design Skills Section ─── -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Project skills</div>
+        <div class="section-desc">Available skills for this project — agent capabilities detected from the workspace.</div>
+      </div>
+      <div style="font-size:10px;color:var(--text-dim);">6 skills</div>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-icon">🔧</div>
+          <span class="skill-name">Refactor Service</span>
+          <span class="skill-badge prototype">prototype</span>
+        </div>
+        <div class="skill-desc">Refactor a Go service with idempotency, retry logic, and DB constraints. Produces edited source files, test files, and a validation checklist.</div>
+        <div class="skill-triggers">
+          <span class="skill-trigger">"refactor payment service"</span>
+          <span class="skill-trigger">"add idempotency"</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-icon">📝</div>
+          <span class="skill-name">Generate Tests</span>
+          <span class="skill-badge prototype">prototype</span>
+        </div>
+        <div class="skill-desc">Generates comprehensive test coverage for Go packages. Auto-discovers test patterns from existing test files.</div>
+        <div class="skill-triggers">
+          <span class="skill-trigger">"add tests for"</span>
+          <span class="skill-trigger">"coverage report"</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-icon">⚡</div>
+          <span class="skill-name">Performance Profile</span>
+          <span class="skill-badge prototype">prototype</span>
+        </div>
+        <div class="skill-desc">Profiles Go code for performance bottlenecks. Runs pprof, identifies hot paths, suggests optimizations.</div>
+        <div class="skill-triggers">
+          <span class="skill-trigger">"optimize query planner"</span>
+          <span class="skill-trigger">"profile this"</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-icon">🏗️</div>
+          <span class="skill-name">Architecture Plan</span>
+          <span class="skill-badge deck">deck</span>
+        </div>
+        <div class="skill-desc">Produces a structured architecture plan with component diagrams, data flow, and API contracts. Plan mode output.</div>
+        <div class="skill-triggers">
+          <span class="skill-trigger">"design rate limiting"</span>
+          <span class="skill-trigger">"architect this"</span>
+        </div>
+        <div class="skill-params">
+          <div class="skill-param">
+            <div class="skill-param-label">Depth</div>
+            <div class="skill-param-slider"><div class="fill" style="width:60%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-icon">🔍</div>
+          <span class="skill-name">Code Review</span>
+          <span class="skill-badge prototype">prototype</span>
+        </div>
+        <div class="skill-desc">Reviews code changes for correctness, style, and security. Produces a review report with findings and suggested fixes.</div>
+        <div class="skill-triggers">
+          <span class="skill-trigger">"review this PR"</span>
+          <span class="skill-trigger">"audit this code"</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-icon">🧪</div>
+          <span class="skill-name">Migration Script</span>
+          <span class="skill-badge template">template</span>
+        </div>
+        <div class="skill-desc">Generates database migration scripts with rollback support. Validates schema compatibility before applying.</div>
+        <div class="skill-triggers">
+          <span class="skill-trigger">"migration script"</span>
+          <span class="skill-trigger">"fix migration"</span>
+        </div>
+        <div class="skill-params">
+          <div class="skill-param">
+            <div class="skill-param-label">Dialect</div>
+            <span style="font-size:8px;color:var(--text-muted);">PostgreSQL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>

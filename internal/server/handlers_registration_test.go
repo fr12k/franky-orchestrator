@@ -33,8 +33,8 @@ func TestHandleRegister(t *testing.T) {
 		if !ok {
 			t.Fatal("agent not found in registry")
 		}
-		if got.Name != "Test" {
-			t.Errorf("expected name 'Test', got '%s'", got.Name)
+		if got.Name != "ws" {
+			t.Errorf("expected name 'ws' (derived from workspace '/ws'), got '%s'", got.Name)
 		}
 		if got.APIURL != "http://agent:8080" {
 			t.Errorf("expected apiUrl 'http://agent:8080', got '%s'", got.APIURL)
@@ -109,7 +109,7 @@ func TestHandleRegister(t *testing.T) {
 		}
 	})
 
-	t.Run("duplicate apiUrl", func(t *testing.T) {
+	t.Run("duplicate apiUrl replaces previous", func(t *testing.T) {
 		srv := newTestServer(t)
 
 		// First registration
@@ -125,7 +125,7 @@ func TestHandleRegister(t *testing.T) {
 			t.Fatalf("first register: %v", err)
 		}
 
-		// Second registration with same apiUrl
+		// Second registration with same apiUrl — should replace, not error
 		body := `{"id":"agent-2","name":"Second","apiUrl":"http://agent:8080"}`
 		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
@@ -133,8 +133,17 @@ func TestHandleRegister(t *testing.T) {
 
 		srv.handleRegister(w, req)
 
-		if w.Code != http.StatusConflict {
-			t.Errorf("expected status 409, got %d: %s", w.Code, w.Body.String())
+		if w.Code != http.StatusOK {
+			t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		// Old agent should be gone
+		if _, ok := srv.registry.Get("agent-1"); ok {
+			t.Error("expected old agent to be replaced")
+		}
+		// New agent should be present
+		if _, ok := srv.registry.Get("agent-2"); !ok {
+			t.Error("expected new agent to be present")
 		}
 	})
 }

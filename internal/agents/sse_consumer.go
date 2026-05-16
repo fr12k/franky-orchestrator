@@ -2,6 +2,7 @@ package agents
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -19,23 +20,29 @@ type SSEConsumer struct {
 	TouchFn func(string)         // called on ping/events to update LastSeenAt
 	Broker  *events.Broker
 	CheckFn func(string) bool    // returns false if agent no longer exists
+	Ctx     context.Context      // cancelled when the consumer should stop
 
-	log *slog.Logger
+	client *http.Client  // reused across reconnects to avoid transport leaks
+	log    *slog.Logger
 }
 
 // NewSSEConsumer creates a new SSEConsumer.
-func NewSSEConsumer(agentID, apiURL string, broker *events.Broker, touchFn func(string), checkFn func(string) bool) *SSEConsumer {
+func NewSSEConsumer(ctx context.Context, agentID, apiURL string, broker *events.Broker, touchFn func(string), checkFn func(string) bool) *SSEConsumer {
 	return &SSEConsumer{
 		AgentID:  agentID,
 		APIURL:   apiURL,
 		Broker:   broker,
 		TouchFn:  touchFn,
 		CheckFn:  checkFn,
+		Ctx:      ctx,
+		client:   &http.Client{Timeout: 0}, // no timeout for streaming
 		log:      slog.With("component", "sse_consumer", "agentId", agentID, "apiUrl", apiURL),
 	}
 }
 
 // Run connects to the agent SSE stream with exponential backoff reconnect.
+// It returns when the context is cancelled, CheckFn returns false, or the
+// agent's SSE stream closes permanently.
 func (c *SSEConsumer) Run() {
 	bk := newBackoff(1*time.Second, 30*time.Second)
 
@@ -43,6 +50,12 @@ func (c *SSEConsumer) Run() {
 		// Check if agent still exists
 		if c.CheckFn != nil && !c.CheckFn(c.AgentID) {
 			c.log.Info("agent removed from registry, stopping SSE consumer")
+			return
+		}
+
+		// Check if we've been cancelled
+		if c.Ctx != nil && c.Ctx.Err() != nil {
+			c.log.Info("context cancelled, stopping SSE consumer")
 			return
 		}
 
@@ -56,23 +69,32 @@ func (c *SSEConsumer) Run() {
 		if c.CheckFn != nil && !c.CheckFn(c.AgentID) {
 			return
 		}
+		if c.Ctx != nil && c.Ctx.Err() != nil {
+			c.log.Info("context cancelled, stopping SSE consumer")
+			return
+		}
 
 		delay := bk.next()
 		c.log.Info("reconnecting", "delay", delay)
-		time.Sleep(delay)
+
+		select {
+		case <-time.After(delay):
+		case <-c.Ctx.Done():
+			c.log.Info("context cancelled during backoff, stopping SSE consumer")
+			return
+		}
 	}
 }
 
 // connectAndRead establishes SSE connection and reads frames.
 func (c *SSEConsumer) connectAndRead() error {
-	req, err := http.NewRequest("GET", c.APIURL+"/events", nil)
+	req, err := http.NewRequestWithContext(c.Ctx, "GET", c.APIURL+"/events", nil)
 	if err != nil {
 		return fmt.Errorf("build request: %w", err)
 	}
 	req.Header.Set("Accept", "text/event-stream")
 
-	client := &http.Client{Timeout: 0} // no timeout for streaming
-	resp, err := client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("connect: %w", err)
 	}
@@ -87,7 +109,8 @@ func (c *SSEConsumer) connectAndRead() error {
 
 	scanner := bufio.NewScanner(resp.Body)
 	// Increase buffer for potentially large SSE data lines
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	// 64KB initial buffer, 256KB max line — sufficient for SSE data payloads
+	scanner.Buffer(make([]byte, 0, 64*1024), 256*1024)
 
 	var frame events.SseFrame
 

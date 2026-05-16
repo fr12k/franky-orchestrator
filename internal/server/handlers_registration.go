@@ -1,10 +1,12 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/franky/orchestrator/internal/agents"
@@ -44,6 +46,12 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Cancel any existing SSE consumer for this apiURL before registering.
+	// This ensures a stale consumer from a previous session doesn't keep
+	// publishing events with an old agentId after the agent re-registers
+	// with a new ID at the same URL.
+	s.cancelConsumer(input.APIURL)
+
 	agent := &registry.Agent{
 		ID:           input.ID,
 		Name:         input.Name,
@@ -57,11 +65,14 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		LastSeenAt:   time.Now(),
 	}
 
+	// Derive agent name from the last path component of workspace, so
+	// agents are uniquely identifiable by their working directory
+	// (e.g. /Users/frank/gh/franky-orchestrator → franky-orchestrator).
+	if input.Workspace != "" {
+		agent.Name = filepath.Base(input.Workspace)
+	}
+
 	if _, err := s.registry.Register(agent); err != nil {
-		if err == registry.ErrDuplicateAPIURL {
-			writeError(w, http.StatusConflict, "duplicate_api_url", "another agent is already registered at this apiUrl")
-			return
-		}
 		writeError(w, http.StatusInternalServerError, "registration_failed", err.Error())
 		return
 	}
@@ -140,6 +151,11 @@ func (s *Server) handleUnregister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Cancel the SSE consumer before unregistering
+	if agent, ok := s.registry.Get(input.ID); ok {
+		s.cancelConsumer(agent.APIURL)
+	}
+
 	if err := s.registry.Unregister(input.ID); err != nil {
 		writeError(w, http.StatusNotFound, "agent_not_found", "agent not found")
 		return
@@ -157,7 +173,21 @@ func (s *Server) handleUnregister(w http.ResponseWriter, r *http.Request) {
 
 // startSSEConsumer connects to the agent's SSE stream and feeds events to the broker.
 func (s *Server) startSSEConsumer(agent *registry.Agent) {
+	s.consumerMu.Lock()
+	if s.consumerCancels == nil {
+		s.consumerCancels = make(map[string]context.CancelFunc)
+	}
+	// Cancel any previous consumer for the same URL
+	if prevCancel, ok := s.consumerCancels[agent.APIURL]; ok {
+		prevCancel()
+	}
+	// Derive from the server's shutdown context so all consumers stop on shutdown.
+	ctx, cancel := context.WithCancel(s.shutdownCtx)
+	s.consumerCancels[agent.APIURL] = cancel
+	s.consumerMu.Unlock()
+
 	consumer := agents.NewSSEConsumer(
+		ctx,
 		agent.ID,
 		agent.APIURL,
 		s.broker,
@@ -168,6 +198,22 @@ func (s *Server) startSSEConsumer(agent *registry.Agent) {
 		},
 	)
 
-	// The consumer runs in a loop with reconnect
-	go consumer.Run()
+	// The consumer runs in a loop with reconnect; it exits when ctx is cancelled
+	consumer.Run()
+}
+
+// ReconnectToStoredAgents starts SSE consumers for all agents in the registry.
+// This is called after the orchestrator restarts to reconnect to previously
+// registered agents using their stored API URLs.
+func (s *Server) ReconnectToStoredAgents() {
+	list := s.registry.List()
+	if len(list) == 0 {
+		return
+	}
+
+	slog.Info("reconnecting to stored agents", "count", len(list))
+	for _, a := range list {
+		slog.Info("starting SSE consumer for stored agent", "agentId", a.ID, "apiUrl", a.APIURL, "name", a.Name)
+		go s.startSSEConsumer(a)
+	}
 }

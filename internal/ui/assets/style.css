@@ -15,10 +15,22 @@
   --tool-bg: #1c2128;
   --card-hover: #1c2128;
 
-  --agent-api: #58a6ff;
-  --agent-web: #3fb950;
-  --agent-ops: #f85149;
-  --agent-docs: #d29922;
+  --text-dim: #6e7681;
+  --success: #3fb950;
+}
+
+/* ── Profile accent colours ─────────────────────────────── */
+.agent-profile-accent {
+  font-size: 9px;
+  padding: 1px 8px;
+  border-radius: 8px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 16px;
 }
 
 /* ── Body ───────────────────────────────────────────────── */
@@ -156,7 +168,87 @@ header h1 span {
   border-color: var(--accent);
 }
 
-/* ── Main ───────────────────────────────────────────────── */
+/* ── Timeline toolbar (agent and event filters) ──────── */
+.timeline-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+.agent-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.agent-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+  transition: background 120ms, border-color 120ms, color 120ms;
+  font-family: inherit;
+}
+
+.agent-tag:hover {
+  border-color: rgba(88,166,255,0.4);
+  color: var(--text);
+}
+
+.agent-tag.active {
+  background: rgba(88,166,255,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.agent-tag .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.event-filters {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.event-btn {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+
+.event-btn:hover {
+  border-color: rgba(88,166,255,0.4);
+  color: var(--text);
+}
+
+.event-btn.active {
+  background: rgba(88,166,255,0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Timeline waterfall ──────────────────────────────── */
 main {
   flex: 1;
   overflow-y: auto;
@@ -219,27 +311,6 @@ main {
   font-size: 14px;
 }
 
-.agent-model {
-  font-size: 10px;
-  padding: 1px 7px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  margin-left: auto;
-  white-space: nowrap;
-}
-
-.agent-role-tag {
-  font-size: 9px;
-  padding: 1px 6px;
-  border-radius: 8px;
-  background: var(--tool-bg);
-  color: var(--muted);
-  border: 1px solid var(--border);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
 /* ── Stats row ──────────────────────────────────────────── */
 .agent-stats {
   display: flex;
@@ -267,15 +338,15 @@ main {
   letter-spacing: 0.5px;
 }
 
-/* ── Tool stats ─────────────────────────────────────────── */
+/* ── Tool badges ────────────────────────────────────────── */
 .agent-tools {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
-.agent-tools .tool-stat {
+.tool-badge {
   font-size: 10px;
   padding: 2px 8px;
   border-radius: 4px;
@@ -287,52 +358,29 @@ main {
   align-items: center;
 }
 
-.agent-tools .tool-stat .tcount {
+.tool-badge .count {
   color: var(--text);
   font-weight: 600;
 }
 
-.agent-tools .tool-stat .tname {
-  color: var(--muted);
-}
-
-/* ── Meta rows ──────────────────────────────────────────── */
-.agent-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
+/* ── Meta row (model + cache) ───────────────────────────── */
 .agent-meta-row {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
 }
 
-.agent-meta-row .label {
-  width: 56px;
-  flex-shrink: 0;
-  color: var(--muted);
-}
-
-.agent-meta-row .value {
+.agent-meta-row strong {
   color: var(--text);
+  font-weight: 600;
 }
 
-.agent-meta-row .value.workspace {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
+/* ── Error message ──────────────────────────────────────── */
 .agent-meta-row .error-msg {
   color: var(--error);
   font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ── Footer ─────────────────────────────────────────────── */
@@ -384,6 +432,11 @@ main {
 .last-activity {
   font-size: 11px;
   color: var(--muted);
+}
+
+.agent-last-seen {
+  font-size: 10px;
+  color: var(--text-dim);
 }
 
 /* ── Add-hint card ──────────────────────────────────────── */
@@ -446,18 +499,79 @@ main {
 /* ── Timeline container ─────────────────────────────────── */
 .timeline-container {
   padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .waterfall {
   max-width: 900px;
   margin: 0 auto;
-  padding: 20px 16px 32px;
+  padding: 20px 16px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Entries container — scrolls internally, scrollbar hidden (browser handles outer) */
+.vf-entries {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+}
+.vf-entries::-webkit-scrollbar {
+  display: none;               /* Chrome/Safari */
+}
+
+/* ── Stats bar (above time axis) ───────────────────────── */
+.wf-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 0 6px;
+  flex-shrink: 0;
+  background: var(--bg);
+  z-index: 2;
+}
+
+.wf-stat-pill {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wf-stat-pill .val {
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.wf-stat-pill .val.accent {
+  color: var(--accent);
+}
+
+.wf-stat-pill .val.error {
+  color: var(--error);
+}
+
+.wf-stat-pill .val.success {
+  color: var(--success);
 }
 
 /* ── Time axis ──────────────────────────────────────────── */
 .time-axis {
-  position: sticky;
-  top: 0;
+  flex-shrink: 0;
   background: var(--bg);
   z-index: 2;
   padding-bottom: 8px;
@@ -493,7 +607,6 @@ main {
   position: relative;
   display: flex;
   gap: 14px;
-  padding: 10px 0 10px 12px;
   border-left: 2px solid transparent;
   margin-left: 8px;
   transition: background 120ms;
@@ -502,6 +615,10 @@ main {
 .waterfall-entry:hover {
   background: rgba(255,255,255,0.03);
   border-radius: 0 6px 6px 0;
+}
+
+.waterfall-entry:hover .wf-hint {
+  opacity: 1;
 }
 
 .waterfall-entry::before {
@@ -527,18 +644,13 @@ main {
   background: rgba(48,54,61,0.6);
 }
 
-/* Agent border accent */
-.waterfall-entry.border-api  { border-left-color: var(--agent-api); }
-.waterfall-entry.border-web  { border-left-color: var(--agent-web); }
-.waterfall-entry.border-ops  { border-left-color: var(--agent-ops); }
-.waterfall-entry.border-docs { border-left-color: var(--agent-docs); }
+/* Agent border accent — now set via inline style from agentColor() */
 
 .wf-time {
   font-size: 11px;
   color: var(--muted);
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-variant-numeric: tabular-nums;
-  width: 60px;
   flex-shrink: 0;
   padding-top: 2px;
   text-align: right;
@@ -561,18 +673,7 @@ main {
   flex-shrink: 0;
 }
 
-.wf-agent .dot.api  { background: var(--agent-api); }
-.wf-agent .dot.web  { background: var(--agent-web); }
-.wf-agent .dot.ops  { background: var(--agent-ops); }
-.wf-agent .dot.docs { background: var(--agent-docs); }
-
-.wf-badge {
-  width: 28px;
-  flex-shrink: 0;
-  text-align: center;
-  font-size: 14px;
-  padding-top: 1px;
-}
+/* Agent dot — now set via inline style from agentColor() */
 
 .wf-content {
   flex: 1;
@@ -634,6 +735,32 @@ main {
 .wf-causal .cause-link:hover { border-color: var(--accent); }
 
 /* Variant text colors */
+/* Error inline preview — truncates huge compiler output etc. */
+.wf-error .wf-error-preview { display: inline; }
+.wf-error .wf-error-toggle {
+  cursor: pointer;
+  color: var(--accent);
+  margin-left: 6px;
+  font-size: 11px;
+  user-select: none;
+}
+.wf-error .wf-error-toggle:hover { text-decoration: underline; }
+.wf-error .wf-error-rest {
+  display: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  background: rgba(0,0,0,0.3);
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-top: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.wf-error .wf-error-rest.wf-error-expanded { display: block; }
+
 .wf-error .wf-title  { color: var(--error); }
 .wf-retry .wf-title  { color: var(--warn); }
 
@@ -655,6 +782,18 @@ main {
   font-size: 11px;
 }
 
+.wf-hint {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  font-size: 9px;
+  color: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms;
+  user-select: none;
+}
+
 /* ── Tool args in timeline ──────────────────────────────── */
 .wf-tool-args {
   color: var(--muted);
@@ -670,23 +809,150 @@ main {
   word-break: break-word;
 }
 
-/* ── Timeline summary ───────────────────────────────────── */
-.wf-summary {
-  margin-top: 20px;
-  padding: 12px 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
+/* ── New-events banner ────────────────────────────── */
+.wf-new-events-banner {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: var(--accent);
+  color: #fff;
   border-radius: 8px;
-  display: flex;
-  gap: 24px;
-  font-size: 11px;
-  color: var(--muted);
-  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 200ms;
+  flex-shrink: 0;
+}
+.wf-new-events-banner:hover {
+  opacity: 0.85;
+}
+.wf-new-events-banner.hidden {
+  display: none;
 }
 
-.wf-summary span strong {
+/* ── Timeline summary ───────────────────────────────────── */
+/* ── Add Agent button ──────────────────────────────────── */
+.add-agent-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--green);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--green);
+  font-size: 12px;
   font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 120ms, color 120ms;
+  white-space: nowrap;
+}
+
+.add-agent-btn:hover {
+  background: rgba(63,185,80,0.1);
+}
+
+/* ── Modal ──────────────────────────────────────────────── */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  min-width: 360px;
+  max-width: 440px;
+  z-index: 101;
+}
+
+.modal-content h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.modal-content label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.modal-content label input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   color: var(--text);
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 120ms;
+}
+
+.modal-content label input:focus {
+  border-color: var(--accent);
+}
+
+.modal-content label input::placeholder {
+  color: var(--muted);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.modal-actions button {
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.btn-cancel:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.btn-primary {
+  background: rgba(63,185,80,0.15);
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: rgba(63,185,80,0.25);
 }
 
 /* ── Transitions ────────────────────────────────────────── */

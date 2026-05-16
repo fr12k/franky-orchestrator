@@ -26,9 +26,32 @@
     <button class="filter-btn" data-filter="offline">Offline</button>
   </div>
   <div class="spacer"></div>
+  <button id="add-agent-btn" class="add-agent-btn">+ Add Agent</button>
   <div id="view-tabs" class="view-tabs">
     <button class="view-tab active" data-view="dashboard">Dashboard</button>
     <button class="view-tab" data-view="timeline">Timeline</button>
+  </div>
+</div>
+
+<!-- Add Agent Modal -->
+<div id="add-agent-modal" class="modal hidden">
+  <div class="modal-backdrop"></div>
+  <div class="modal-content">
+    <h2>Add Agent Manually</h2>
+    <form id="add-agent-form">
+      <label>
+        Name
+        <input type="text" id="agent-name-input" placeholder="e.g. frankie" autocomplete="off" required>
+      </label>
+      <label>
+        Host
+        <input type="text" id="agent-host-input" placeholder="e.g. localhost:8789" autocomplete="off" required>
+      </label>
+      <div class="modal-actions">
+        <button type="button" id="add-agent-cancel" class="btn-cancel">Cancel</button>
+        <button type="submit" id="add-agent-submit" class="btn-primary">Add Agent</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -36,6 +59,19 @@
 <main>
   <div id="agent-grid" class="agent-grid"></div>
   <div id="timeline-container" class="hidden">
+    <!-- Timeline toolbar with agent + event type filters -->
+    <div id="timeline-toolbar" class="timeline-toolbar">
+      <div id="agent-tags" class="agent-tags"></div>
+      <div class="spacer"></div>
+      <div id="event-filters" class="event-filters">
+        <button class="event-btn active" data-filter="all">All</button>
+        <button class="event-btn" data-filter="user">User</button>
+        <button class="event-btn" data-filter="assistant">Assistant</button>
+        <button class="event-btn" data-filter="reasoning">Reasoning</button>
+        <button class="event-btn" data-filter="tools">Tools</button>
+        <button class="event-btn" data-filter="errors">Errors</button>
+      </div>
+    </div>
     <div id="waterfall"></div>
   </div>
   <div id="empty-state" class="empty-state hidden">

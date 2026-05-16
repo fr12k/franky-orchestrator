@@ -22,8 +22,20 @@ func (p *Persister) Path() string {
 	return p.path
 }
 
-// Save writes the agents map to disk atomically.
+// Save writes the agents map to disk atomically with indentation (human-readable).
 func (p *Persister) Save(agents map[string]*Agent) error {
+	return p.save(agents, true)
+}
+
+// SaveCompact writes the agents map to disk atomically using compact JSON
+// (no indentation). This reduces allocation size compared to Save and is
+// suitable for periodic batched flushes where human readability is not needed.
+func (p *Persister) SaveCompact(agents map[string]*Agent) error {
+	return p.save(agents, false)
+}
+
+// save internal helper that marshals with or without indentation.
+func (p *Persister) save(agents map[string]*Agent, indent bool) error {
 	// Ensure directory exists
 	dir := filepath.Dir(p.path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -31,7 +43,13 @@ func (p *Persister) Save(agents map[string]*Agent) error {
 	}
 
 	// Marshal to JSON
-	data, err := json.MarshalIndent(agents, "", "  ")
+	var data []byte
+	var err error
+	if indent {
+		data, err = json.MarshalIndent(agents, "", "  ")
+	} else {
+		data, err = json.Marshal(agents)
+	}
 	if err != nil {
 		return fmt.Errorf("marshal: %w", err)
 	}

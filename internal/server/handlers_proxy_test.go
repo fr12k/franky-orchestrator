@@ -615,7 +615,7 @@ func TestAgentToMapFull(t *testing.T) {
 		}
 	})
 
-	t.Run("with zero stat fields omitted", func(t *testing.T) {
+	t.Run("with zero stat fields present", func(t *testing.T) {
 		a := &registry.Agent{
 			ID:           "agent-minimal",
 			Name:         "Minimal",
@@ -628,27 +628,41 @@ func TestAgentToMapFull(t *testing.T) {
 
 		m := agentToMap(a)
 
-		// Stat fields should be absent when zero
-		if _, ok := m["messageCount"]; ok {
-			t.Error("expected messageCount to be absent when zero")
+		// Stat fields should always be present (even when zero), except errorMessage
+		if _, ok := m["messageCount"]; !ok {
+			t.Error("expected messageCount to be present (may be zero)")
+		} else if m["messageCount"] != 0 {
+			t.Errorf("expected messageCount 0, got %v", m["messageCount"])
 		}
-		if _, ok := m["turnCount"]; ok {
-			t.Error("expected turnCount to be absent when zero")
+		if _, ok := m["turnCount"]; !ok {
+			t.Error("expected turnCount to be present (may be zero)")
+		} else if m["turnCount"] != 0 {
+			t.Errorf("expected turnCount 0, got %v", m["turnCount"])
 		}
-		if _, ok := m["tokensIn"]; ok {
-			t.Error("expected tokensIn to be absent when zero")
+		if _, ok := m["tokensIn"]; !ok {
+			t.Error("expected tokensIn to be present (may be zero)")
+		} else if m["tokensIn"] != 0 {
+			t.Errorf("expected tokensIn 0, got %v", m["tokensIn"])
 		}
-		if _, ok := m["tokensOut"]; ok {
-			t.Error("expected tokensOut to be absent when zero")
+		if _, ok := m["tokensOut"]; !ok {
+			t.Error("expected tokensOut to be present (may be zero)")
+		} else if m["tokensOut"] != 0 {
+			t.Errorf("expected tokensOut 0, got %v", m["tokensOut"])
 		}
-		if _, ok := m["toolStats"]; ok {
-			t.Error("expected toolStats to be absent when empty")
+		if _, ok := m["toolStats"]; !ok {
+			t.Error("expected toolStats to be present (may be empty)")
 		}
+		if _, ok := m["stats"]; !ok {
+			t.Error("expected stats to be present (may have zero messages)")
+		} else if s, ok := m["stats"].(map[string]any); ok {
+			if s["messages"] != 0 {
+				t.Errorf("expected stats.messages 0, got %v", s["messages"])
+			}
+		}
+
+		// errorMessage should still be absent when empty
 		if _, ok := m["errorMessage"]; ok {
 			t.Error("expected errorMessage to be absent when empty")
-		}
-		if _, ok := m["stats"]; ok {
-			t.Error("expected stats to be absent when messageCount is zero")
 		}
 	})
 }
@@ -675,10 +689,10 @@ func TestNew(t *testing.T) {
 
 	srv := New(":9876", reg, broker, agentClient, dataDir)
 
-	if srv.Addr != ":9876" {
-		t.Errorf("expected Addr ':9876', got %q", srv.Addr)
+	if srv.HTTPServer.Addr != ":9876" {
+		t.Errorf("expected Addr ':9876', got %q", srv.HTTPServer.Addr)
 	}
-	if srv.Handler == nil {
+	if srv.HTTPServer.Handler == nil {
 		t.Fatal("expected non-nil Handler")
 	}
 
@@ -686,7 +700,7 @@ func TestNew(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
 
-	srv.Handler.ServeHTTP(w, req)
+	srv.HTTPServer.Handler.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())

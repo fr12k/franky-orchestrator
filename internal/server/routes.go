@@ -18,7 +18,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 
 	// Browser API (read-only + actions)
 	mux.HandleFunc("GET /agents", s.handleListAgents)
+	mux.HandleFunc("POST /agents", s.handleAddAgent)
 	mux.HandleFunc("GET /agents/{id}", s.handleGetAgent)
+	mux.HandleFunc("PATCH /agents/{id}", s.handleUpdateAgent)
 	mux.HandleFunc("DELETE /agents/{id}", s.handleDeleteAgent)
 
 	// Proxy endpoints to agent APIs

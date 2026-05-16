@@ -23,9 +23,11 @@ func newTestServer(t *testing.T) *Server {
 	go broker.Run(ctx)
 	agentClient := agents.NewClient()
 	return &Server{
-		registry:    reg,
-		broker:      broker,
-		agentClient: agentClient,
-		dataDir:     t.TempDir(),
+		registry:        reg,
+		broker:          broker,
+		agentClient:     agentClient,
+		dataDir:         t.TempDir(),
+		shutdownCtx:     ctx,
+		consumerCancels: make(map[string]context.CancelFunc),
 	}
 }
